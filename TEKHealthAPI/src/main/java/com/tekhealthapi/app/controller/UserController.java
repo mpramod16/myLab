@@ -3,23 +3,19 @@
  */
 package com.tekhealthapi.app.controller;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tekhealthapi.app.models.User;
 import com.tekhealthapi.app.models.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Pramod M
@@ -31,7 +27,8 @@ public class UserController {
 
 	private final Logger LOG = LoggerFactory.getLogger(getClass());
 
-	private final UserRepository userRepository;
+	@Autowired
+        private final UserRepository userRepository;
 
 	public UserController(UserRepository userRepository) {
 		this.userRepository = userRepository;
@@ -45,10 +42,10 @@ public class UserController {
 	}
 
 
-	@RequestMapping(value = "/{userId}", method = RequestMethod.GET)
-	public User getUser(@PathVariable String userId) {
-		LOG.info("Getting user with ID: {}.", userId);
-		return userRepository.findOne(userId);
+	@RequestMapping(value = "/{emailId}", method = RequestMethod.GET)
+	public User getUser(@PathVariable String emailId) {
+		LOG.info("Getting user with ID: {}.", emailId);
+		return userRepository.findOne(emailId);
 	}
 
 
@@ -57,7 +54,19 @@ public class UserController {
 		LOG.info("Saving user.");
 		return userRepository.save(user);
 	}
-	
+	  
+        @RequestMapping(method=RequestMethod.PUT,value="/update/{emailId}")
+	public User updateUser(@RequestBody User user, @PathVariable String emailId) {
+                
+		if(userRepository.findOne(emailId)!= null){// emailId is primaryKey hence should nt be able to update it.
+		LOG.info("updating user."+user.getFirstName());
+		return userRepository.save(user);
+                }
+                else {
+                    LOG.info("Invalid EmailId.");
+                    return null;
+                }
+	}
 
 	/*@RequestMapping(value = "/settings/{userId}", method = RequestMethod.GET)
 	public Object getAllUserSettings(@PathVariable String userId) {

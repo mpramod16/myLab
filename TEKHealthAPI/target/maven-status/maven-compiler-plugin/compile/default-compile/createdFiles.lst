@@ -1,4 +1,16 @@
+com\tekhealthapi\app\jobs\CumulosityDeviceDataJob.class
 com\tekhealthapi\app\controller\UserController.class
+com\tekhealthapi\app\controller\UserDeviceDataController.class
 com\tekhealthapi\app\models\User.class
+com\tekhealthapi\app\models\UserDevicesRepository.class
+com\tekhealthapi\app\models\C8YData.class
+com\tekhealthapi\app\models\Measurements.class
+com\tekhealthapi\app\models\UserDeviceDataRepository.class
 com\tekhealthapi\app\models\UserRepository.class
 com\tekhealthapi\app\SpringBootMongoDbApplication.class
+com\tekhealthapi\app\controller\UserDevicesController.class
+com\tekhealthapi\app\models\UserDeviceData.class
+com\tekhealthapi\app\models\H.class
+com\tekhealthapi\app\models\UserDevices.class
+com\tekhealthapi\app\models\C8Y_HealthMonitoring.class
+com\tekhealthapi\app\models\D.class

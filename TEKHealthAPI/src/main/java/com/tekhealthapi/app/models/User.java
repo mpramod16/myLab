@@ -22,8 +22,26 @@ public class User{
 	String emailId;
 	String password;
         String mobileNumber;
+        String medicalNumber;
+        String patientId;
         String country;
+        
+    public String getPatientId() {
+        return patientId;
+    }
 
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }    
+
+     public String getMedicalNumber() {
+        return medicalNumber;
+    }
+
+    public void setMedicalNumber(String medicalNumber) {
+        this.medicalNumber = medicalNumber;
+    }    
+        
     public String getCountry() {
         return country;
     }
