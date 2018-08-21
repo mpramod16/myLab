@@ -23,8 +23,99 @@ public class UserDeviceData {
     String attributeType;
     double attributeValue;
     String unitOfMeasurement;
-    String evaluatedTimeStamp;
+    Timestamp evaluatedTimeStamp;
     String status;//to know whether data is pushed to salesforce or not values 1-Cumulosity, 2-Salesforce
     Timestamp createdTimestamp;//current datetime
     Timestamp updatedTimestamp;//status updated datetime -- data to salesforce
+
+
+    public String getDeviceDataId() {
+        return deviceDataId;
+    }
+
+    public void setDeviceDataId(String deviceDataId) {
+        this.deviceDataId = deviceDataId;
+    }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public String getAttributeType() {
+        return attributeType;
+    }
+
+    public void setAttributeType(String attributeType) {
+        this.attributeType = attributeType;
+    }
+
+    public double getAttributeValue() {
+        return attributeValue;
+    }
+
+    public void setAttributeValue(double attributeValue) {
+        this.attributeValue = attributeValue;
+    }
+
+    public String getUnitOfMeasurement() {
+        return unitOfMeasurement;
+    }
+
+    public void setUnitOfMeasurement(String unitOfMeasurement) {
+        this.unitOfMeasurement = unitOfMeasurement;
+    }
+
+    public Timestamp getEvaluatedTimeStamp() {
+        return evaluatedTimeStamp;
+    }
+
+    public void setEvaluatedTimeStamp(Timestamp evaluatedTimeStamp) {
+        this.evaluatedTimeStamp = evaluatedTimeStamp;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Timestamp getCreatedTimestamp() {
+        return createdTimestamp;
+    }
+
+    public void setCreatedTimestamp(Timestamp createdTimestamp) {
+        this.createdTimestamp = createdTimestamp;
+    }
+
+    public Timestamp getUpdatedTimestamp() {
+        return updatedTimestamp;
+    }
+
+    public void setUpdatedTimestamp(Timestamp updatedTimestamp) {
+        this.updatedTimestamp = updatedTimestamp;
+    }
+
+
 }

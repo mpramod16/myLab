@@ -30,7 +30,7 @@ import com.tekhealthapi.app.models.UserDevicesRepository;
 public class UserDevicesController {
 
 	private final Logger LOG = LoggerFactory.getLogger(getClass());
-
+	@Autowired
 	private final UserDevicesRepository userDevicesRepository;
 
 	public UserDevicesController(UserDevicesRepository userDevicesRepository) {

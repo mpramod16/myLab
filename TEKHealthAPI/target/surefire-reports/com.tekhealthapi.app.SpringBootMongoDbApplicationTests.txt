@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.tekhealthapi.app.SpringBootMongoDbApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.378 sec - in com.tekhealthapi.app.SpringBootMongoDbApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.163 sec - in com.tekhealthapi.app.SpringBootMongoDbApplicationTests

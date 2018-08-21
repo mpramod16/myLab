@@ -21,10 +21,10 @@ public class User{
 	String lastName;
 	String emailId;
 	String password;
-        String mobileNumber;
-        String medicalNumber;
-        String patientId;
-        String country;
+	String mobileNumber;
+	String medicalNumber;
+	String patientId;
+	String country;
         
     public String getPatientId() {
         return patientId;
