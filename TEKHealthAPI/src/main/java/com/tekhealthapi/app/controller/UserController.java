@@ -3,6 +3,9 @@
  */
 package com.tekhealthapi.app.controller;
 
+import com.tekhealthapi.app.models.SalesForceMRNumberResponse;
+import com.tekhealthapi.app.models.SalesForcePatientIDResponse;
+import com.tekhealthapi.app.models.SalesForceTokenResponse;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -15,7 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tekhealthapi.app.models.User;
 import com.tekhealthapi.app.models.UserRepository;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * @author Pramod M
@@ -54,6 +64,37 @@ public class UserController {
 		LOG.info("Saving user.");
 		return userRepository.save(user);
 	}
+        
+        @RequestMapping(value = "/getPatientID/{mrNumber}", method = RequestMethod.GET)
+	public SalesForceMRNumberResponse getPatientID(@PathVariable String mrNumber) {
+		LOG.info("Fetching PatientId from SalesForce.");
+                final String SALESFORCETOKEN_URL ="https://teksystemshealthcare.my.salesforce.com/services/oauth2/token?grant_type=password&client_id=3MVG9YDQS5WtC11qc1AI9.6dtMUtSKMiDu7IC7E4zcjtL.OziW599N056Cbd6uyBHX0MylXzNQLdYo3AKZc3H&client_secret=6796271916356064713&username=teksystemshealthcare@gmail.com&password=Abcd1234";
+        
+            System.out.println("Getting Token--------");
+            RestTemplate restTemplateForTken = new RestTemplate();
+            SalesForceTokenResponse tokenRes = restTemplateForTken.postForObject(SALESFORCETOKEN_URL, null, SalesForceTokenResponse.class);//.getForObject(SALESFORCETOKEN_URL, SalesForceTokenResponse.class);
+            System.out.println("Token--------"+tokenRes.getAccess_token());
+            restTemplateForTken = null;
+
+            final String SALESFORCEPATIENT_URL = "https://teksystemshealthcare.my.salesforce.com/services/apexrest/TekSystems_PatientIdByMRN";
+            RestTemplate restTemplateForPatientInfo = new RestTemplate();
+
+            HttpHeaders headers = new HttpHeaders();
+
+            headers.set("Authorization", "Bearer "+tokenRes.getAccess_token());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+           // headers.set("Content-Type", "application/json");
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("medicalRecordNumber", mrNumber);
+            HttpEntity request = new HttpEntity(params, headers);
+            SalesForceMRNumberResponse[] response;
+            response = restTemplateForPatientInfo.
+                    postForObject(SALESFORCEPATIENT_URL, request, SalesForceMRNumberResponse[].class);
+            System.out.println("response----"+response[0].getId());
+		return response[0];
+	}
+        
+        
 	  
         @RequestMapping(method=RequestMethod.PUT,value="/update/{emailId}")
 	public User updateUser(@RequestBody User user, @PathVariable String emailId) {
