@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +38,12 @@ public class UserController {
 
 	private final Logger LOG = LoggerFactory.getLogger(getClass());
 
+	@Value("${app.sf.token.url}")
+	private String sfTokenUrl;
+
+	@Value("${app.sf.patient.url}")
+	private String sfPatientUrl;
+
 	@Autowired
         private final UserRepository userRepository;
 
@@ -60,15 +67,24 @@ public class UserController {
 
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	public User addNewUsers(@RequestBody User user) {
+	public String addNewUsers(@RequestBody User user) {
 		LOG.info("Saving user.");
-		return userRepository.save(user);
+		String patientId=this.getPatientID(user.getMedicalNumber()).getId();
+		if (patientId != null){
+			LOG.info("Saving user with PatientID "+patientId);
+			user.setPatientId(patientId);
+			userRepository.save(user);
+			return patientId;
+		} else {
+			LOG.info("Medical Number "+user.getMedicalNumber()+" not found in Salesforce");
+			return "Invalid Medical Number";
+		}
 	}
         
         @RequestMapping(value = "/getPatientID/{mrNumber}", method = RequestMethod.GET)
 	public SalesForceMRNumberResponse getPatientID(@PathVariable String mrNumber) {
 		LOG.info("Fetching PatientId from SalesForce.");
-                final String SALESFORCETOKEN_URL ="https://teksystemshealthcare.my.salesforce.com/services/oauth2/token?grant_type=password&client_id=3MVG9YDQS5WtC11qc1AI9.6dtMUtSKMiDu7IC7E4zcjtL.OziW599N056Cbd6uyBHX0MylXzNQLdYo3AKZc3H&client_secret=6796271916356064713&username=teksystemshealthcare@gmail.com&password=Abcd1234";
+                final String SALESFORCETOKEN_URL =sfTokenUrl;
         
             System.out.println("Getting Token--------");
             RestTemplate restTemplateForTken = new RestTemplate();
@@ -76,7 +92,7 @@ public class UserController {
             System.out.println("Token--------"+tokenRes.getAccess_token());
             restTemplateForTken = null;
 
-            final String SALESFORCEPATIENT_URL = "https://teksystemshealthcare.my.salesforce.com/services/apexrest/TekSystems_PatientIdByMRN";
+            final String SALESFORCEPATIENT_URL = sfPatientUrl;
             RestTemplate restTemplateForPatientInfo = new RestTemplate();
 
             HttpHeaders headers = new HttpHeaders();

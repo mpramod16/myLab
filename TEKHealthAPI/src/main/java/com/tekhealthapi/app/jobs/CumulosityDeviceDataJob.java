@@ -25,10 +25,8 @@ import static jdk.nashorn.internal.objects.NativeDebug.map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -46,6 +44,17 @@ public class CumulosityDeviceDataJob {
     @Autowired
     private UserDeviceDataController userDeviceDataController;
 
+    @Value("${app.sf.token.url}")
+    private String sfTokenUrl;
+    @Value("${app.sf.devicedata.url}")
+    private String sfDeviceDataUrl;
+    @Value("${app.c8y.url}")
+    private String c8yUrl;
+    @Value("${app.c8y.username}")
+    private String c8yUsername;
+    @Value("${app.c8y.pwd}")
+    private String c8yPwd;
+
     private static final Logger LOG = LoggerFactory.getLogger(CumulosityDeviceDataJob.class);
    
    @Scheduled(initialDelay = 1000, fixedRate = 60000)//fixedRate in milliseconds 60000 => 1min
@@ -61,10 +70,10 @@ public class CumulosityDeviceDataJob {
     
     private void syncDeviceData(UserDevices device){
         System.out.println(" in scheduler -----------------");
-        final String CUMULOSITY_URL ="https://teksystemspoc.cumulocity.com/measurement/measurements?fragmentType=c8y_HealthMonitoring&source=68350";
+        final String CUMULOSITY_URL = c8yUrl+device.getDeviceId();
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getInterceptors().add(
-        new BasicAuthorizationInterceptor("skadhira@teksystems.com", "Tek@123"));
+        new BasicAuthorizationInterceptor(c8yUsername, c8yPwd));
         C8YData c8yData =  restTemplate.getForObject(CUMULOSITY_URL, C8YData.class);
         //put c8yData into DeviceData table
         System.out.println(" got response from cumulocity -----------------");
@@ -95,7 +104,9 @@ public class CumulosityDeviceDataJob {
            
             userDD.setStatus("CUMULOCITY");
             userDD.setUpdatedTimestamp(new Timestamp(new Date().getTime()));
-            this.syncToSF(device.getPatientId(), userDD);
+            if(this.syncToSF(device.getPatientId(), userDD)){
+                userDD.setStatus("SALESFORCE");
+            }
         }
 
         userDeviceDataController.addUserDeviceData(userDD);
@@ -104,9 +115,9 @@ public class CumulosityDeviceDataJob {
     }
     
     
-    private void syncToSF(String patientID, UserDeviceData data){
+    private boolean syncToSF(String patientID, UserDeviceData data){
         
-        final String SALESFORCETOKEN_URL ="https://teksystemshealthcare.my.salesforce.com/services/oauth2/token?grant_type=password&client_id=3MVG9YDQS5WtC11qc1AI9.6dtMUtSKMiDu7IC7E4zcjtL.OziW599N056Cbd6uyBHX0MylXzNQLdYo3AKZc3H&client_secret=6796271916356064713&username=teksystemshealthcare@gmail.com&password=Abcd1234";
+        final String SALESFORCETOKEN_URL =sfTokenUrl;
         
         System.out.println("Getting Token--------");
         RestTemplate restTemplateForTken = new RestTemplate();
@@ -114,7 +125,7 @@ public class CumulosityDeviceDataJob {
         System.out.println("Token--------"+tokenRes.getAccess_token());
         restTemplateForTken = null;
         
-        final String SALESFORCEDEVICEINFO_URL = "https://teksystemshealthcare.my.salesforce.com/services/apexrest/TekSystems_pushDeviceData";
+        final String SALESFORCEDEVICEINFO_URL = sfDeviceDataUrl;
         RestTemplate restTemplateForPatientInfo = new RestTemplate();
         
         HttpHeaders headers = new HttpHeaders();
@@ -139,15 +150,12 @@ public class CumulosityDeviceDataJob {
         ResponseEntity<String> response = restTemplateForPatientInfo.postForEntity(SALESFORCEDEVICEINFO_URL, request, String.class);
         System.out.println("response----"+response.getBody());
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        if(response.getStatusCode().is2xxSuccessful()){
+            return true;
+        }else{
+            return false;
+        }
+
     }
     
    
