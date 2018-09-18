@@ -13,6 +13,7 @@ import com.tekhealthapi.app.models.SalesForceTokenResponse;
 import com.tekhealthapi.app.models.UserDeviceData;
 import com.tekhealthapi.app.models.UserDevices;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -20,8 +21,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static jdk.nashorn.internal.objects.NativeArray.map;
-import static jdk.nashorn.internal.objects.NativeDebug.map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +69,9 @@ public class CumulosityDeviceDataJob {
     
     private void syncDeviceData(UserDevices device){
         System.out.println(" in scheduler -----------------");
+        /*Interval of the cron job - 60 Seconds
+         2 dates. enddate=currnetsysdate. start date = sysdate-60 sec;
+         */
         final String CUMULOSITY_URL = c8yUrl+device.getDeviceId();
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getInterceptors().add(
@@ -77,39 +79,69 @@ public class CumulosityDeviceDataJob {
         C8YData c8yData =  restTemplate.getForObject(CUMULOSITY_URL, C8YData.class);
         //put c8yData into DeviceData table
         System.out.println(" got response from cumulocity -----------------");
-        UserDeviceData userDD=new UserDeviceData();
+
         C8Y_HealthMonitoring c8yHealthMonData= c8yData.getMeasurements().get(0).getC8yHealthMonitoring();
+//        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+//        Date date = new Date();
+        Timestamp timeStamp= c8yData.getMeasurements().get(0).getTime();
         if(c8yHealthMonData.getD() != null ){
+            UserDeviceData userDD=new UserDeviceData();
             userDD.setAttributeType("STEPCOUNT");
             userDD.setAttributeValue(Double.parseDouble(c8yHealthMonData.getD().getValue()));
             userDD.setDeviceId(device.getDeviceId());
+            userDD.setPatientId(device.getPatientId());
             userDD.setUnitOfMeasurement(c8yHealthMonData.getD().getUnit());
-            userDD.setCreatedTimestamp(new Timestamp(new Date().getTime()));
+            userDD.setCreatedTimestamp(timeStamp);
             userDD.setDeviceName(device.getDeviceName());
-            userDD.setEvaluatedTimeStamp(new Timestamp(new Date().getTime()));
+            userDD.setEvaluatedTimeStamp(timeStamp);
             
             userDD.setStatus("CUMULOCITY");
-            userDD.setUpdatedTimestamp(new Timestamp(new Date().getTime()));
-            
-            this.syncToSF(device.getPatientId(), userDD);
-        }
-        if(c8yHealthMonData.getH() != null){
-            userDD.setAttributeType("HEARTRATE");
-            userDD.setAttributeValue(Double.parseDouble(c8yHealthMonData.getH().getValue()));
-            userDD.setDeviceId(device.getDeviceId());
-            userDD.setUnitOfMeasurement(c8yHealthMonData.getH().getUnit());
-            userDD.setCreatedTimestamp(new Timestamp(new Date().getTime()));
-            userDD.setDeviceName(device.getDeviceName());
-            userDD.setEvaluatedTimeStamp(new Timestamp(new Date().getTime()));
-           
-            userDD.setStatus("CUMULOCITY");
-            userDD.setUpdatedTimestamp(new Timestamp(new Date().getTime()));
+            userDD.setUpdatedTimestamp(timeStamp);
+
             if(this.syncToSF(device.getPatientId(), userDD)){
                 userDD.setStatus("SALESFORCE");
             }
+            userDeviceDataController.addUserDeviceData(userDD);
+        }
+        if(c8yHealthMonData.getP() != null ){
+            UserDeviceData userDD=new UserDeviceData();
+            userDD.setAttributeType("BLOOD PRESSURE");
+            userDD.setAttributeValue(Double.parseDouble(c8yHealthMonData.getP().getValue()));
+            userDD.setDeviceId(device.getDeviceId());
+            userDD.setPatientId(device.getPatientId());
+            userDD.setUnitOfMeasurement(c8yHealthMonData.getP().getUnit());
+            userDD.setCreatedTimestamp(timeStamp);
+            userDD.setDeviceName(device.getDeviceName());
+            userDD.setEvaluatedTimeStamp(timeStamp);
+
+            userDD.setStatus("CUMULOCITY");
+            userDD.setUpdatedTimestamp(timeStamp);
+
+            if(this.syncToSF(device.getPatientId(), userDD)){
+                userDD.setStatus("SALESFORCE");
+            }
+            userDeviceDataController.addUserDeviceData(userDD);
+        }
+        if(c8yHealthMonData.getH() != null){
+            UserDeviceData userDD=new UserDeviceData();
+            userDD.setAttributeType("HEARTRATE");
+            userDD.setAttributeValue(Double.parseDouble(c8yHealthMonData.getH().getValue()));
+            userDD.setDeviceId(device.getDeviceId());
+            userDD.setPatientId(device.getPatientId());
+            userDD.setUnitOfMeasurement(c8yHealthMonData.getH().getUnit());
+            userDD.setCreatedTimestamp(timeStamp);
+            userDD.setDeviceName(device.getDeviceName());
+            userDD.setEvaluatedTimeStamp(timeStamp);
+           
+            userDD.setStatus("CUMULOCITY");
+            userDD.setUpdatedTimestamp(timeStamp);
+            if(this.syncToSF(device.getPatientId(), userDD)){
+                userDD.setStatus("SALESFORCE");
+            }
+            userDeviceDataController.addUserDeviceData(userDD);
         }
 
-        userDeviceDataController.addUserDeviceData(userDD);
+        //userDeviceDataController.addUserDeviceData(userDD);
         LOG.info("Response:" + c8yData.toString());
         System.out.println("Response:"+c8yData.toString());
     }
@@ -137,20 +169,42 @@ public class CumulosityDeviceDataJob {
          System.out.println("patient id----"+patientID);
         params.put("PatientID", patientID);
         System.out.println("attribute type ----"+data.getAttributeType());
-        params.put("AttributeType", "Heart Rate");
-        System.out.println("attribute type ----"+data.getAttributeValue());
-        params.put("AttributeValue", String.valueOf(data.getAttributeValue()));
+        params.put("AttributeType", data.getAttributeType());
+        System.out.println("attribute Value ----"+data.getAttributeValue());
+        int index=Double.toString(data.getAttributeValue()).indexOf('.');
+        if(index > 0){
+            String[] str=Double.toString(data.getAttributeValue()).split("[.]");
+            params.put("AttributeValue",str[0]);
+            System.out.println("AttributeValue without ."+ str[0]);
+            if(data.getAttributeType()=="BLOOD PRESSURE"){
+                params.put("SecondaryAttributeValue",str[1]);
+                System.out.println("SecondaryAttributeValue "+ str[1]);
+            }
+        }
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         Date date = new Date();
         System.out.println("date ----"+dateFormat.format(date));
         params.put("DataCollectedTimestamp", dateFormat.format(date));
-        params.put("DeviceID", "BPMonitor_1");
-        params.put("DeviceName", "BP Monitor");
+        params.put("DeviceID", data.getDeviceId());
+        params.put("DeviceName", data.getDeviceName());
+        System.out.println("data.getAttributeType()===="+data.getAttributeType());
+
         HttpEntity request = new HttpEntity(params, headers);
-        ResponseEntity<String> response = restTemplateForPatientInfo.postForEntity(SALESFORCEDEVICEINFO_URL, request, String.class);
-        System.out.println("response----"+response.getBody());
-        
-        if(response.getStatusCode().is2xxSuccessful()){
+        ResponseEntity<String> response=null;
+        System.out.println("Request Sent>>>>>>>>"+ request.toString()+"");
+//        restTemplateForPatientInfo.postForEntity(SALESFORCEDEVICEINFO_URL,request,String.class);
+        try{
+            response = restTemplateForPatientInfo.postForEntity(SALESFORCEDEVICEINFO_URL, request, String.class);
+            System.out.println("response----"+response.getStatusCode());
+        }catch(Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+
+
+        restTemplateForPatientInfo=null;
+
+        if( response != null && response.getStatusCode().is2xxSuccessful()){
             return true;
         }else{
             return false;

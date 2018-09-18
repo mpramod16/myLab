@@ -32,16 +32,27 @@ public class C8Y_HealthMonitoring {
     public void setH(H h) {
         this.h = h;
     }
+    @JsonProperty("P")
+    public P getP() {
+        return p;
+    }
+    @JsonProperty("P")
+    public void setP(P p) {
+        this.p = p;
+    }
     @JsonProperty("D")
     D d;
     @JsonProperty("H")
     H h;
-    
+    @JsonProperty("P")
+    P p;
+
      @Override
     public String toString(){
         return  "{"+
                 "D='"+d+'\''+
                 ",H='"+h+'\''+
+                ",P='"+p+'\''+
                 '}';
     }
     

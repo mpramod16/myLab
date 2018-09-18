@@ -67,18 +67,22 @@ public class UserController {
 
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	public String addNewUsers(@RequestBody User user) {
+	public User addNewUsers(@RequestBody User user) {
 		LOG.info("Saving user.");
-		String patientId=this.getPatientID(user.getMedicalNumber()).getId();
-		if (patientId != null){
-			LOG.info("Saving user with PatientID "+patientId);
-			user.setPatientId(patientId);
-			userRepository.save(user);
-			return patientId;
-		} else {
-			LOG.info("Medical Number "+user.getMedicalNumber()+" not found in Salesforce");
-			return "Invalid Medical Number";
+		String patientId="";
+		if(getPatientID(user.getMedicalNumber())!=null) {
+			patientId = this.getPatientID(user.getMedicalNumber()).getId();
 		}
+
+			if (patientId != null) {
+				LOG.info("Saving user with PatientID " + patientId);
+				user.setPatientId(patientId);
+				return userRepository.save(user);
+			} else {
+				LOG.info("Medical Number " + user.getMedicalNumber() + " not found in Salesforce");
+				return user;
+			}
+
 	}
         
         @RequestMapping(value = "/getPatientID/{mrNumber}", method = RequestMethod.GET)
@@ -103,11 +107,23 @@ public class UserController {
             Map<String, String> params = new HashMap<String, String>();
             params.put("medicalRecordNumber", mrNumber);
             HttpEntity request = new HttpEntity(params, headers);
-            SalesForceMRNumberResponse[] response;
-            response = restTemplateForPatientInfo.
-                    postForObject(SALESFORCEPATIENT_URL, request, SalesForceMRNumberResponse[].class);
-            System.out.println("response----"+response[0].getId());
-		return response[0];
+            SalesForceMRNumberResponse[] response=null;
+			 try{
+				 response = restTemplateForPatientInfo.
+						 postForObject(SALESFORCEPATIENT_URL, request, SalesForceMRNumberResponse[].class);
+
+			 }catch(ArrayIndexOutOfBoundsException e){
+				 e.printStackTrace();
+			 }
+
+			if(response.length>0){
+				System.out.println("response----"+response.length);
+				System.out.println("response----" + response[0].getId());
+				return response[0];
+
+			}else {
+				return null;
+			}
 	}
         
         

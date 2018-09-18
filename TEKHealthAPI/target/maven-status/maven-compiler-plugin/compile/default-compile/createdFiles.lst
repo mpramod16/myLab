@@ -10,6 +10,7 @@ com\tekhealthapi\app\models\SalesForceTokenResponse.class
 com\tekhealthapi\app\models\UserDeviceDataRepository.class
 com\tekhealthapi\app\models\UserRepository.class
 com\tekhealthapi\app\SpringBootMongoDbApplication.class
+com\tekhealthapi\app\models\P.class
 com\tekhealthapi\app\controller\UserDevicesController.class
 com\tekhealthapi\app\models\SalesForceMRNumberResponse.class
 com\tekhealthapi\app\models\UserDeviceData.class

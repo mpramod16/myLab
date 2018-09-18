@@ -8,6 +8,9 @@ package com.tekhealthapi.app.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.Date;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
@@ -17,6 +20,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 @JsonIgnoreProperties(ignoreUnknown =  true)
 public class Measurements {
+
+    @JsonProperty("time")
+    Timestamp time;
+    @JsonProperty("time")
+    public Timestamp getTime() {return time;}
+    @JsonProperty("time")
+    public void setTime(Timestamp time) {this.time = time;}
     @JsonProperty("c8y_HealthMonitoring")
     C8Y_HealthMonitoring c8y_HealthMonitoring;
     @JsonProperty("c8y_HealthMonitoring")

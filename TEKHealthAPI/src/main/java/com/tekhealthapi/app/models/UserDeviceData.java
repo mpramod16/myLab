@@ -6,6 +6,8 @@
 package com.tekhealthapi.app.models;
 
 import java.sql.Timestamp;
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -23,10 +25,10 @@ public class UserDeviceData {
     String attributeType;
     double attributeValue;
     String unitOfMeasurement;
-    Timestamp evaluatedTimeStamp;
+    Date evaluatedTimeStamp;
     String status;//to know whether data is pushed to salesforce or not values 1-Cumulosity, 2-Salesforce
-    Timestamp createdTimestamp;//current datetime
-    Timestamp updatedTimestamp;//status updated datetime -- data to salesforce
+    Date createdTimestamp;//current datetime
+    Date updatedTimestamp;//status updated datetime -- data to salesforce
 
 
     public String getDeviceDataId() {
@@ -85,7 +87,7 @@ public class UserDeviceData {
         this.unitOfMeasurement = unitOfMeasurement;
     }
 
-    public Timestamp getEvaluatedTimeStamp() {
+    public Date getEvaluatedTimeStamp() {
         return evaluatedTimeStamp;
     }
 
@@ -101,7 +103,7 @@ public class UserDeviceData {
         this.status = status;
     }
 
-    public Timestamp getCreatedTimestamp() {
+    public Date getCreatedTimestamp() {
         return createdTimestamp;
     }
 
@@ -109,7 +111,7 @@ public class UserDeviceData {
         this.createdTimestamp = createdTimestamp;
     }
 
-    public Timestamp getUpdatedTimestamp() {
+    public Date getUpdatedTimestamp() {
         return updatedTimestamp;
     }
 
