@@ -11,10 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.mongodb.repository.Query;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -30,7 +30,6 @@ public class UserDeviceDataController {
 
     @Autowired
     private final UserDeviceDataRepository userDeviceDataRepository;
-    private ExampleMatcher exampleMatcher;
     public UserDeviceDataController(UserDeviceDataRepository userDeviceDataRepository) {
         this.userDeviceDataRepository = userDeviceDataRepository;
     }
@@ -52,20 +51,20 @@ public class UserDeviceDataController {
     @RequestMapping(
             value = "/patientIdAndDates",
             params = { "patientId", "fromDate", "toDate" }, method = RequestMethod.GET)
-    @Query("{'patientId':?2,'createdTimestamp': { $lte: new Date(?0), $gte : ISODate(?1)}}")
-    public List<UserDeviceData> findByCreationTimestampBetweenAndPatientId(@RequestParam("fromDate") Date fromDate,@RequestParam("toDate") Date toDate,@RequestParam("patientId") String patientId) {
+    public List<UserDeviceData> findByPatientIdCreatedDates(@RequestParam("patientId") String patientId,@RequestParam("fromDate") String fromDate,@RequestParam("toDate") String toDate) {
         LOG.info("Getting userDeviceData with patientId: {}.", patientId);
         LOG.info("Getting userDeviceData with fromDate: {}.", fromDate);
         LOG.info("Getting userDeviceData with toDate: {}.", toDate);
+        Date frDate=new Date(),tooDate=new Date();
+        try{
+             frDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(fromDate);
+             tooDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(toDate);
+        }catch(ParseException e){
+            e.printStackTrace();
+        }
 
-       /* this.exampleMatcher = ExampleMatcher.matching()
-                .withIgnoreNullValues()
-                .withIgnoreCase()
-                .withMatcher("patientId",match -> match.startsWith().stringMatcher( ExampleMatcher.StringMatcher.valueOf(patientId)))
-                .withMatcher("createdTimestamp",match -> match.startsWith().stringMatcher(ExampleMatcher.StringMatcher.valueOf()))
-                .withMatcher("createdTimestamp",match -> match.startsWith().stringMatcher(ExampleMatcher.StringMatcher.valueOf(toDate)));
-       */
-        return userDeviceDataRepository.findAll();
+
+        return userDeviceDataRepository.findByPatientIdAndCreatedTimestampBetween(patientId, frDate, tooDate);
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)

@@ -56,7 +56,7 @@ public class CumulosityDeviceDataJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(CumulosityDeviceDataJob.class);
    
-   @Scheduled(initialDelay = 1000, fixedRate = 60000)//fixedRate in milliseconds 60000 => 1min
+   @Scheduled(initialDelay = 10000, fixedRate = 3600000)//fixedRate in milliseconds 60000 => 1min
     public void run() {
        List<UserDevices> deviceList = userDevicesController.getAllUserDevices();
         System.out.println("DeviceList is Empty?"+deviceList.isEmpty());
