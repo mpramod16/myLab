@@ -71,7 +71,8 @@ public class CumulosityDeviceDataJob {
         today.add(today.DATE,0);
         final Calendar yesterday=Calendar.getInstance();
         yesterday.add(yesterday.DATE,-1);
-        final String CUMULOSITY_URL = c8yUrl+device.getDeviceId()+"&dateFrom="+dtFormat.format(today.getTime())+"&dateTo="+dtFormat.format(yesterday.getTime());
+        final String CUMULOSITY_URL = c8yUrl+device.getDeviceId()+"&dateFrom="+dtFormat.format(yesterday.getTime())+"&dateTo="+dtFormat.format(today.getTime());
+        System.out.println(" CUMULOSITY_URL>>>>"+CUMULOSITY_URL);
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getInterceptors().add(
         new BasicAuthorizationInterceptor(c8yUsername, c8yPwd));
@@ -189,9 +190,7 @@ public class CumulosityDeviceDataJob {
             }
         }
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        Date date = new Date();
-        System.out.println("date ----"+dateFormat.format(date));
-        params.put("DataCollectedTimestamp", dateFormat.format(date));
+        params.put("DataCollectedTimestamp", dateFormat.format(data.getCreatedTimestamp()));
         params.put("DeviceID", data.getDeviceId());
         params.put("DeviceName", data.getDeviceName());
         System.out.println("data.getAttributeType()===="+data.getAttributeType());
