@@ -7,20 +7,14 @@ package com.tekhealthapi.app.jobs;
 
 import com.tekhealthapi.app.controller.UserDeviceDataController;
 import com.tekhealthapi.app.controller.UserDevicesController;
-import com.tekhealthapi.app.models.C8YData;
-import com.tekhealthapi.app.models.C8Y_HealthMonitoring;
-import com.tekhealthapi.app.models.SalesForceTokenResponse;
-import com.tekhealthapi.app.models.UserDeviceData;
-import com.tekhealthapi.app.models.UserDevices;
+import com.tekhealthapi.app.models.*;
 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +50,7 @@ public class CumulosityDeviceDataJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(CumulosityDeviceDataJob.class);
    
-   @Scheduled(initialDelay = 10000, fixedRate = 86400000)//fixedRate in milliseconds 60000 => 1min
+   @Scheduled(initialDelay = 60000, fixedRate = 86400000)//fixedRate in milliseconds 60000 => 1min
     public void run() {
        List<UserDevices> deviceList = userDevicesController.getAllUserDevices();
         System.out.println("DeviceList is Empty?"+deviceList.isEmpty());
@@ -72,75 +66,88 @@ public class CumulosityDeviceDataJob {
         /*Interval of the cron job - 60 Seconds
          2 dates. enddate=currnetsysdate. start date = sysdate-60 sec;
          */
-        final String CUMULOSITY_URL = c8yUrl+device.getDeviceId();
+        DateFormat dtFormat = new SimpleDateFormat("yyyy-MM-dd");
+        final Calendar today= Calendar.getInstance();
+        today.add(today.DATE,0);
+        final Calendar yesterday=Calendar.getInstance();
+        yesterday.add(yesterday.DATE,-1);
+        final String CUMULOSITY_URL = c8yUrl+device.getDeviceId()+"&dateFrom="+dtFormat.format(today.getTime())+"&dateTo="+dtFormat.format(yesterday.getTime());
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getInterceptors().add(
         new BasicAuthorizationInterceptor(c8yUsername, c8yPwd));
         C8YData c8yData =  restTemplate.getForObject(CUMULOSITY_URL, C8YData.class);
         //put c8yData into DeviceData table
         System.out.println(" got response from cumulocity -----------------");
-
-        C8Y_HealthMonitoring c8yHealthMonData= c8yData.getMeasurements().get(0).getC8yHealthMonitoring();
+        for (Measurements measurements:c8yData.getMeasurements() ) {
+            C8Y_HealthMonitoring c8yHealthMonData = measurements.getC8yHealthMonitoring();
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            Date date = new Date();
+            Date date1 = new Date();
+            date1.setMinutes(date1.getMinutes() - 2);
+            Timestamp currentTimeStamp = new Timestamp(today.getTimeInMillis());
+            Timestamp prevTimeStamp = new Timestamp(yesterday.getTimeInMillis());
+            Timestamp timeStamp = measurements.getTime();
+            //C8Y_HealthMonitoring c8yHealthMonData= c8yData.getMeasurements().get(0).getC8yHealthMonitoring();
 //        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 //        Date date = new Date();
-        Timestamp timeStamp= c8yData.getMeasurements().get(0).getTime();
-        if(c8yHealthMonData.getD() != null ){
-            UserDeviceData userDD=new UserDeviceData();
-            userDD.setAttributeType("STEPCOUNT");
-            userDD.setAttributeValue(Double.parseDouble(c8yHealthMonData.getD().getValue()));
-            userDD.setDeviceId(device.getDeviceId());
-            userDD.setPatientId(device.getPatientId());
-            userDD.setUnitOfMeasurement(c8yHealthMonData.getD().getUnit());
-            userDD.setCreatedTimestamp(timeStamp);
-            userDD.setDeviceName(device.getDeviceName());
-            userDD.setEvaluatedTimeStamp(timeStamp);
-            
-            userDD.setStatus("CUMULOCITY");
-            userDD.setUpdatedTimestamp(timeStamp);
+//            Timestamp timeStamp = c8yData.getMeasurements().get(0).getTime();
+            if (c8yHealthMonData.getD() != null && timeStamp.before(currentTimeStamp) && timeStamp.after(prevTimeStamp)) {
+                UserDeviceData userDD = new UserDeviceData();
+                userDD.setAttributeType("STEPCOUNT");
+                userDD.setAttributeValue(Double.parseDouble(c8yHealthMonData.getD().getValue()));
+                userDD.setDeviceId(device.getDeviceId());
+                userDD.setPatientId(device.getPatientId());
+                userDD.setUnitOfMeasurement(c8yHealthMonData.getD().getUnit());
+                userDD.setCreatedTimestamp(timeStamp);
+                userDD.setDeviceName(device.getDeviceName());
+                userDD.setEvaluatedTimeStamp(timeStamp);
 
-            if(this.syncToSF(device.getPatientId(), userDD)){
-                userDD.setStatus("SALESFORCE");
+                userDD.setStatus("CUMULOCITY");
+                userDD.setUpdatedTimestamp(timeStamp);
+
+                if (this.syncToSF(device.getPatientId(), userDD)) {
+                    userDD.setStatus("SALESFORCE");
+                }
+                userDeviceDataController.addUserDeviceData(userDD);
             }
-            userDeviceDataController.addUserDeviceData(userDD);
-        }
-        if(c8yHealthMonData.getP() != null ){
-            UserDeviceData userDD=new UserDeviceData();
-            userDD.setAttributeType("BLOOD PRESSURE");
-            userDD.setAttributeValue(Double.parseDouble(c8yHealthMonData.getP().getValue()));
-            userDD.setDeviceId(device.getDeviceId());
-            userDD.setPatientId(device.getPatientId());
-            userDD.setUnitOfMeasurement(c8yHealthMonData.getP().getUnit());
-            userDD.setCreatedTimestamp(timeStamp);
-            userDD.setDeviceName(device.getDeviceName());
-            userDD.setEvaluatedTimeStamp(timeStamp);
+            if (c8yHealthMonData.getP() != null && timeStamp.before(currentTimeStamp) && timeStamp.after(prevTimeStamp)) {
+                UserDeviceData userDD = new UserDeviceData();
+                userDD.setAttributeType("BLOOD PRESSURE");
+                userDD.setAttributeValue(Double.parseDouble(c8yHealthMonData.getP().getValue()));
+                userDD.setDeviceId(device.getDeviceId());
+                userDD.setPatientId(device.getPatientId());
+                userDD.setUnitOfMeasurement(c8yHealthMonData.getP().getUnit());
+                userDD.setCreatedTimestamp(timeStamp);
+                userDD.setDeviceName(device.getDeviceName());
+                userDD.setEvaluatedTimeStamp(timeStamp);
 
-            userDD.setStatus("CUMULOCITY");
-            userDD.setUpdatedTimestamp(timeStamp);
+                userDD.setStatus("CUMULOCITY");
+                userDD.setUpdatedTimestamp(timeStamp);
 
-            if(this.syncToSF(device.getPatientId(), userDD)){
-                userDD.setStatus("SALESFORCE");
+                if (this.syncToSF(device.getPatientId(), userDD)) {
+                    userDD.setStatus("SALESFORCE");
+                }
+                userDeviceDataController.addUserDeviceData(userDD);
             }
-            userDeviceDataController.addUserDeviceData(userDD);
-        }
-        if(c8yHealthMonData.getH() != null){
-            UserDeviceData userDD=new UserDeviceData();
-            userDD.setAttributeType("HEARTRATE");
-            userDD.setAttributeValue(Double.parseDouble(c8yHealthMonData.getH().getValue()));
-            userDD.setDeviceId(device.getDeviceId());
-            userDD.setPatientId(device.getPatientId());
-            userDD.setUnitOfMeasurement(c8yHealthMonData.getH().getUnit());
-            userDD.setCreatedTimestamp(timeStamp);
-            userDD.setDeviceName(device.getDeviceName());
-            userDD.setEvaluatedTimeStamp(timeStamp);
-           
-            userDD.setStatus("CUMULOCITY");
-            userDD.setUpdatedTimestamp(timeStamp);
-            if(this.syncToSF(device.getPatientId(), userDD)){
-                userDD.setStatus("SALESFORCE");
-            }
-            userDeviceDataController.addUserDeviceData(userDD);
-        }
+            if (c8yHealthMonData.getH() != null && timeStamp.before(currentTimeStamp) && timeStamp.after(prevTimeStamp)) {
+                UserDeviceData userDD = new UserDeviceData();
+                userDD.setAttributeType("HEARTRATE");
+                userDD.setAttributeValue(Double.parseDouble(c8yHealthMonData.getH().getValue()));
+                userDD.setDeviceId(device.getDeviceId());
+                userDD.setPatientId(device.getPatientId());
+                userDD.setUnitOfMeasurement(c8yHealthMonData.getH().getUnit());
+                userDD.setCreatedTimestamp(timeStamp);
+                userDD.setDeviceName(device.getDeviceName());
+                userDD.setEvaluatedTimeStamp(timeStamp);
 
+                userDD.setStatus("CUMULOCITY");
+                userDD.setUpdatedTimestamp(timeStamp);
+                if (this.syncToSF(device.getPatientId(), userDD)) {
+                    userDD.setStatus("SALESFORCE");
+                }
+                userDeviceDataController.addUserDeviceData(userDD);
+            }
+        }
         //userDeviceDataController.addUserDeviceData(userDD);
         LOG.info("Response:" + c8yData.toString());
         System.out.println("Response:"+c8yData.toString());
