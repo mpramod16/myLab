@@ -50,7 +50,7 @@ public class CumulosityDeviceDataJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(CumulosityDeviceDataJob.class);
    
-   @Scheduled(initialDelay = 60000, fixedRate = 86400000)//fixedRate in milliseconds 60000 => 1min
+   @Scheduled(initialDelay = 60000, fixedRate = 300000)//fixedRate in milliseconds 60000 => 1min
     public void run() {
        List<UserDevices> deviceList = userDevicesController.getAllUserDevices();
         System.out.println("DeviceList is Empty?"+deviceList.isEmpty());
@@ -66,12 +66,14 @@ public class CumulosityDeviceDataJob {
         /*Interval of the cron job - 60 Seconds
          2 dates. enddate=currnetsysdate. start date = sysdate-60 sec;
          */
-        DateFormat dtFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat dtFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dtFormat.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
         final Calendar today= Calendar.getInstance();
-        today.add(today.DATE,0);
+        today.add(today.DATE,+1);//change to 0 after demo
         final Calendar yesterday=Calendar.getInstance();
-        yesterday.add(yesterday.DATE,-1);
+        yesterday.add(yesterday.DATE,0);
         final String CUMULOSITY_URL = c8yUrl+device.getDeviceId()+"&dateFrom="+dtFormat.format(yesterday.getTime())+"&dateTo="+dtFormat.format(today.getTime());
+        //final String CUMULOSITY_URL = c8yUrl+device.getDeviceId()+"&dateFrom="+dtFormat.format(yesterday.getTime())+"&dateTo="+"2018-09-22";// for demo purpose
         System.out.println(" CUMULOSITY_URL>>>>"+CUMULOSITY_URL);
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getInterceptors().add(
@@ -82,11 +84,14 @@ public class CumulosityDeviceDataJob {
         for (Measurements measurements:c8yData.getMeasurements() ) {
             C8Y_HealthMonitoring c8yHealthMonData = measurements.getC8yHealthMonitoring();
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
             Date date = new Date();
             Date date1 = new Date();
             date1.setMinutes(date1.getMinutes() - 2);
             Timestamp currentTimeStamp = new Timestamp(today.getTimeInMillis());
             Timestamp prevTimeStamp = new Timestamp(yesterday.getTimeInMillis());
+            System.out.println("CurrentTimeStamp>>>"+dateFormat.format(currentTimeStamp));
+            System.out.println("prevTimeStamp>>>"+dateFormat.format(prevTimeStamp));
             Timestamp timeStamp = measurements.getTime();
             //C8Y_HealthMonitoring c8yHealthMonData= c8yData.getMeasurements().get(0).getC8yHealthMonitoring();
 //        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -190,7 +195,9 @@ public class CumulosityDeviceDataJob {
             }
         }
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
         params.put("DataCollectedTimestamp", dateFormat.format(data.getCreatedTimestamp()));
+        System.out.println("DataCollectedTimestamp>>>>"+dateFormat.format(data.getCreatedTimestamp()));
         params.put("DeviceID", data.getDeviceId());
         params.put("DeviceName", data.getDeviceName());
         System.out.println("data.getAttributeType()===="+data.getAttributeType());
