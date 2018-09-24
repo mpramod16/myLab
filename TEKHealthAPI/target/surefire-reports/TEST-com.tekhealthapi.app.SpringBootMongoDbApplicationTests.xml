@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.tekhealthapi.app.SpringBootMongoDbApplicationTests" time="0.019" tests="1" errors="0" skipped="0" failures="0">
+<testsuite name="com.tekhealthapi.app.SpringBootMongoDbApplicationTests" time="0.185" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="idea.version" value="14.1.7"/>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
@@ -11,7 +11,7 @@
     <property name="guice.disable.misplaced.annotation.check" value="true"/>
     <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
     <property name="file.encoding.pkg" value="sun.io"/>
-    <property name="idea.launcher.port" value="7533"/>
+    <property name="idea.launcher.port" value="7536"/>
     <property name="user.script" value=""/>
     <property name="user.country" value="IN"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
@@ -29,7 +29,7 @@
     <property name="os.name" value="Windows 7"/>
     <property name="classworlds.conf" value="D:\FullStack\Programs\IntelliJ IDEA 14.1.7\plugins\maven\lib\maven3\bin\m2.conf"/>
     <property name="sun.jnu.encoding" value="Cp1252"/>
-    <property name="java.library.path" value="C:\Program Files\Java\jdk1.8.0_181\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Program Files\Docker;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\RSA SecurID Token Common;C:\ProgramData\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\CCM;C:\Windows\CCM;D:\FullStack\Programs\Anaconda3\Scripts;D:\FullStack\Programs\Anaconda3;C:\Program Files\Git\cmd;D:\FullStack\Programs\nodejs\;C:\Program Files\Java\jdk1.8.0_181\bin;C:\Program Files\Java\jdk1.8.0_181\bin;C:\Program Files\Java\jre1.8.0_181\bin;C:\Program Files\Apache Software Foundation\apache-tomcat-7.0.82\lib;D:\SonarQube\sonar-scanner-3.1.0.1141-windows\bin;D:\SonarQube\sonarqube-6.7.3\bin\windows-x86-64;C:\Program Files\Oracle\VirtualBox;C:\Program Files\PuTTY\;D:\FullStack\Programs\apache-maven\bin;C:\Program Files (x86)\RSA SecurID Token Common\;."/>
+    <property name="java.library.path" value="C:\Program Files\Java\jdk1.8.0_181\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Program Files\Docker;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\RSA SecurID Token Common;C:\ProgramData\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\CCM;C:\Windows\CCM;D:\FullStack\Programs\Anaconda3\Scripts;D:\FullStack\Programs\Anaconda3;C:\Program Files\Git\cmd;D:\FullStack\Programs\nodejs\;C:\Program Files\Java\jdk1.8.0_181\bin;C:\Program Files\Java\jdk1.8.0_181\bin;C:\Program Files\Java\jre1.8.0_181\bin;C:\Program Files\Apache Software Foundation\apache-tomcat-7.0.82\lib;D:\SonarQube\sonar-scanner-3.1.0.1141-windows\bin;D:\SonarQube\sonarqube-6.7.3\bin\windows-x86-64;C:\Program Files\Oracle\VirtualBox;C:\Program Files\PuTTY\;D:\FullStack\Programs\apache-maven\binD:\FullStack\Programs\MongoDB\Server\4.0\bin;C:\Program Files (x86)\RSA SecurID Token Common\;."/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.class.version" value="52.0"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
@@ -62,5 +62,5 @@
     <property name="sun.desktop" value="windows"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase name="contextLoads" classname="com.tekhealthapi.app.SpringBootMongoDbApplicationTests" time="0.019"/>
+  <testcase name="contextLoads" classname="com.tekhealthapi.app.SpringBootMongoDbApplicationTests" time="0.185"/>
 </testsuite>
