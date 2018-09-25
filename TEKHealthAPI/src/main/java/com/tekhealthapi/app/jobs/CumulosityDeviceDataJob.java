@@ -51,7 +51,7 @@ public class CumulosityDeviceDataJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(CumulosityDeviceDataJob.class);
    
-   @Scheduled(initialDelay = 60000, fixedRate = 300000)//fixedRate in milliseconds 60000 => 1min
+   @Scheduled(initialDelay = 60000, fixedRate = 120000)//fixedRate in milliseconds 60000 => 1min
     public void run() {
        List<UserDevices> deviceList = userDevicesController.getAllUserDevices();
         System.out.println("DeviceList is Empty?"+deviceList.isEmpty());
@@ -69,13 +69,12 @@ public class CumulosityDeviceDataJob {
          */
         SimpleDateFormat dtFormat = new SimpleDateFormat("yyyy-MM-dd");
         dtFormat.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+        Date dt=new Date();
         final Calendar today= Calendar.getInstance();
         today.add(today.DATE,+1);//change to 0 after demo
         final Calendar yesterday=Calendar.getInstance();
-        yesterday.add(yesterday.DATE,0);
-        yesterday.set(Calendar.HOUR, 0);
-        yesterday.set(Calendar.MINUTE, 0);
-        yesterday.set(Calendar.SECOND, 0);
+        yesterday.add(Calendar.MINUTE,-2);// this is dependent on scheduler timeinterval.
+
         final String CUMULOSITY_URL = c8yUrl+device.getDeviceId()+"&dateFrom="+dtFormat.format(yesterday.getTime())+"&dateTo="+dtFormat.format(today.getTime());
         //final String CUMULOSITY_URL = c8yUrl+device.getDeviceId()+"&dateFrom="+dtFormat.format(yesterday.getTime())+"&dateTo="+"2018-09-22";// for demo purpose
         System.out.println(" CUMULOSITY_URL>>>>"+CUMULOSITY_URL);
