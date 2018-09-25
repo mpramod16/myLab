@@ -11,6 +11,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -92,12 +93,16 @@ public class UserController {
         
             System.out.println("Getting Token--------");
             RestTemplate restTemplateForTken = new RestTemplate();
+			((SimpleClientHttpRequestFactory) restTemplateForTken.getRequestFactory()).setConnectTimeout(180000);
+			((SimpleClientHttpRequestFactory) restTemplateForTken.getRequestFactory()).setReadTimeout(180000);
             SalesForceTokenResponse tokenRes = restTemplateForTken.postForObject(SALESFORCETOKEN_URL, null, SalesForceTokenResponse.class);//.getForObject(SALESFORCETOKEN_URL, SalesForceTokenResponse.class);
             System.out.println("Token--------"+tokenRes.getAccess_token());
             restTemplateForTken = null;
 
             final String SALESFORCEPATIENT_URL = sfPatientUrl;
             RestTemplate restTemplateForPatientInfo = new RestTemplate();
+			((SimpleClientHttpRequestFactory) restTemplateForPatientInfo.getRequestFactory()).setConnectTimeout(180000);
+			((SimpleClientHttpRequestFactory) restTemplateForPatientInfo.getRequestFactory()).setReadTimeout(180000);
 
             HttpHeaders headers = new HttpHeaders();
 

@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -72,10 +73,15 @@ public class CumulosityDeviceDataJob {
         today.add(today.DATE,+1);//change to 0 after demo
         final Calendar yesterday=Calendar.getInstance();
         yesterday.add(yesterday.DATE,0);
+        yesterday.set(Calendar.HOUR, 0);
+        yesterday.set(Calendar.MINUTE, 0);
+        yesterday.set(Calendar.SECOND, 0);
         final String CUMULOSITY_URL = c8yUrl+device.getDeviceId()+"&dateFrom="+dtFormat.format(yesterday.getTime())+"&dateTo="+dtFormat.format(today.getTime());
         //final String CUMULOSITY_URL = c8yUrl+device.getDeviceId()+"&dateFrom="+dtFormat.format(yesterday.getTime())+"&dateTo="+"2018-09-22";// for demo purpose
         System.out.println(" CUMULOSITY_URL>>>>"+CUMULOSITY_URL);
         RestTemplate restTemplate = new RestTemplate();
+        ((SimpleClientHttpRequestFactory) restTemplate.getRequestFactory()).setConnectTimeout(180000);
+        ((SimpleClientHttpRequestFactory) restTemplate.getRequestFactory()).setReadTimeout(180000);
         restTemplate.getInterceptors().add(
         new BasicAuthorizationInterceptor(c8yUsername, c8yPwd));
         C8YData c8yData =  restTemplate.getForObject(CUMULOSITY_URL, C8YData.class);
@@ -93,10 +99,14 @@ public class CumulosityDeviceDataJob {
             System.out.println("CurrentTimeStamp>>>"+dateFormat.format(currentTimeStamp));
             System.out.println("prevTimeStamp>>>"+dateFormat.format(prevTimeStamp));
             Timestamp timeStamp = measurements.getTime();
+            System.out.println("TimeStamp>>>"+timeStamp);
+            System.out.println("TimeStamp>>>"+dateFormat.format(timeStamp));
             //C8Y_HealthMonitoring c8yHealthMonData= c8yData.getMeasurements().get(0).getC8yHealthMonitoring();
 //        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 //        Date date = new Date();
 //            Timestamp timeStamp = c8yData.getMeasurements().get(0).getTime();
+            System.out.println("timeStamp.before(currentTimeStamp)??"+timeStamp.before(currentTimeStamp));
+            System.out.println("timeStamp.after(prevTimeStamp)??"+timeStamp.after(prevTimeStamp));
             if (c8yHealthMonData.getD() != null && timeStamp.before(currentTimeStamp) && timeStamp.after(prevTimeStamp)) {
                 UserDeviceData userDD = new UserDeviceData();
                 userDD.setAttributeType("STEPCOUNT");
@@ -166,13 +176,15 @@ public class CumulosityDeviceDataJob {
         
         System.out.println("Getting Token--------");
         RestTemplate restTemplateForTken = new RestTemplate();
+
         SalesForceTokenResponse tokenRes = restTemplateForTken.postForObject(SALESFORCETOKEN_URL, null, SalesForceTokenResponse.class);//.getForObject(SALESFORCETOKEN_URL, SalesForceTokenResponse.class);
         System.out.println("Token--------"+tokenRes.getAccess_token());
         restTemplateForTken = null;
         
         final String SALESFORCEDEVICEINFO_URL = sfDeviceDataUrl;
         RestTemplate restTemplateForPatientInfo = new RestTemplate();
-        
+        ((SimpleClientHttpRequestFactory) restTemplateForPatientInfo.getRequestFactory()).setConnectTimeout(180000);
+        ((SimpleClientHttpRequestFactory) restTemplateForPatientInfo.getRequestFactory()).setReadTimeout(180000);
         HttpHeaders headers = new HttpHeaders();
         
         headers.set("Authorization", "Bearer "+tokenRes.getAccess_token());
