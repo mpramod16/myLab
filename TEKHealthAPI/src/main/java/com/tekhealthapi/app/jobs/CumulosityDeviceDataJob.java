@@ -48,17 +48,19 @@ public class CumulosityDeviceDataJob {
     private String c8yUsername;
     @Value("${app.c8y.pwd}")
     private String c8yPwd;
-
+    private Date jobLastRun=null;
     private static final Logger LOG = LoggerFactory.getLogger(CumulosityDeviceDataJob.class);
    
    @Scheduled(initialDelay = 60000, fixedRate = 120000)//fixedRate in milliseconds 60000 => 1min
     public void run() {
        List<UserDevices> deviceList = userDevicesController.getAllUserDevices();
-        System.out.println("DeviceList is Empty?"+deviceList.isEmpty());
+       System.out.println("Starting scheduled job >>>");
+        System.out.println("IsDeviceList is Empty?"+deviceList.isEmpty());
        if (!deviceList.isEmpty()){
         for (UserDevices device : deviceList) {
            this.syncDeviceData(device);
             }
+
         }
     }
     
@@ -71,9 +73,9 @@ public class CumulosityDeviceDataJob {
         dtFormat.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
         Date dt=new Date();
         final Calendar today= Calendar.getInstance();
-        today.add(today.DATE,+1);//change to 0 after demo
+        today.add(today.DATE,+1);
         final Calendar yesterday=Calendar.getInstance();
-        yesterday.add(Calendar.MINUTE,-2);// this is dependent on scheduler timeinterval.
+        yesterday.add(yesterday.MINUTE,-2);// this is dependent on scheduler timeinterval.
 
         final String CUMULOSITY_URL = c8yUrl+device.getDeviceId()+"&dateFrom="+dtFormat.format(yesterday.getTime())+"&dateTo="+dtFormat.format(today.getTime());
         //final String CUMULOSITY_URL = c8yUrl+device.getDeviceId()+"&dateFrom="+dtFormat.format(yesterday.getTime())+"&dateTo="+"2018-09-22";// for demo purpose
@@ -164,8 +166,8 @@ public class CumulosityDeviceDataJob {
             }
         }
         //userDeviceDataController.addUserDeviceData(userDD);
-        LOG.info("Response:" + c8yData.toString());
-        System.out.println("Response:"+c8yData.toString());
+//        LOG.info("Response:" + c8yData.toString());
+//        System.out.println("Response:"+c8yData.toString());
     }
     
     
