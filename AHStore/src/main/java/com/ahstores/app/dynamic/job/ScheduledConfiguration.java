@@ -53,6 +53,7 @@ public class ScheduledConfiguration implements SchedulingConfigurer {
         	taskScheduler.scheduleAtFixedRate(task,schedulerConfig.getJobRefreshRateInMillis());
 		}
         }
+
         taskRegistrar.setTaskScheduler(threadPoolTaskScheduler);
     	
         

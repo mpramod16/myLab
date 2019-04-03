@@ -37,6 +37,7 @@ public class Task implements Runnable {
     private String topicname;
     @Value(value="${ahstore.app.queuename}")
     private String queuename;
+    
 	@Autowired
 	private PublishToQueueService queueService;
 	@Autowired
@@ -64,7 +65,7 @@ public class Task implements Runnable {
 			try {
 				//queueService.sendMessage(umURL, queuename, message);
 				topicService.sendMessage(umURL, topicname, message);
-				messageShipmentSourceService.deleteByMsgSeqNumber(messageShipment_S.getMsgSeqNumber());
+				//messageShipmentSourceService.deleteByMsgSeqNumber(messageShipment_S.getMsgSeqNumber());
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.ahstores.app</groupId>
+	<artifactId>AHStore</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
+
+	<name>AHStore</name>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.4.0.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	
+	<dependencies>
+		<!-- Oracle Database -->
+		<!-- <dependency>
+		    <groupId>org.springframework.data</groupId>
+		    <artifactId>spring-data-oracle</artifactId>
+		    <version>1.0.0.RELEASE</version>
+		</dependency> -->
+		<dependency>
+	        <groupId>com.oracle</groupId>
+	        <artifactId>ojdbc6</artifactId>
+	        <version>11.2.0.3</version>
+    	</dependency>
+		<!-- Adding Universal Messaging Jars -->
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>nAdminAPI</artifactId>
+		    <version>9.9</version>
+		     <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/nAdminAPI.jar</systemPath> 
+		</dependency>
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>nEnterpriseManager</artifactId>
+		    <version>9.9</version>
+		     <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/nEnterpriseManager.jar</systemPath> 
+		</dependency>
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>ninstancemanager</artifactId>
+		    <version>9.9</version>
+		    <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/ninstancemanager.jar</systemPath>
+		</dependency>
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>nP2P</artifactId>
+		    <version>9.9</version>
+		     <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/nP2P.jar</systemPath> 
+		</dependency>
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>nProtocols</artifactId>
+		    <version>9.9</version>
+		     <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/nProtocols.jar</systemPath> 
+		</dependency>
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>nServer</artifactId>
+		    <version>9.9</version>
+		     <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/nServer.jar</systemPath> 
+		</dependency>
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>umStorage</artifactId>
+		    <version>9.9</version>
+		    <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/umStorage.jar</systemPath>
+		</dependency>
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>umTransport</artifactId>
+		    <version>9.9</version>
+		    <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/umTransport.jar</systemPath>
+		</dependency>
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>nerv-classpath-minimal</artifactId>
+		    <version>9.9</version>
+		    <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/nerv-classpath-minimal.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>nerv-classpath-basic</artifactId>
+		    <version>9.9</version>
+		    <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/nerv-classpath-basic.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>nerv-cipher-util</artifactId>
+		    <version>9.9</version>
+		    <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/nerv-cipher-util.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>nAdminXMLAPI</artifactId>
+		    <version>9.9</version>
+		    <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/nAdminXMLAPI.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>nDeployer</artifactId>
+		    <version>9.9</version>
+		    <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/nDeployer.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>nClient</artifactId>
+		    <version>9.9</version>
+		     <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/nClient.jar</systemPath> 
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>nJMS</artifactId>
+		    <version>9.9</version>
+		    <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/nJMS.jar</systemPath> 
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.pcbsys.nirvana</groupId>
+		    <artifactId>nPlugin</artifactId>
+		    <version>9.9</version>
+		     <scope>system</scope>
+		    <systemPath>${basedir}/src/main/resources/lib/nPlugin.jar</systemPath> 
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+                <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
+	
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>        
+            <plugin>
+			  <groupId>org.springframework.boot</groupId>
+			  <artifactId>spring-boot-maven-plugin</artifactId>
+			  <configuration>
+			    <includeSystemScope>true</includeSystemScope>
+			  </configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+
+</project>

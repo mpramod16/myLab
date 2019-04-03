@@ -38,7 +38,7 @@ public class TopicListenerService implements nEventListener {
     nSession session = null;
     boolean isRunning=false;
     
-	public void mySyncTopicReader(String umURL, String topicName) throws Exception {
+	public void mySyncTopicReader(String umURL, String topicName, String durableSubscriberName) throws Exception {
         this.session = this.connect(umURL);
         this.LOG.info("Created session");
         nChannelAttributes cattrib = new nChannelAttributes();
@@ -46,7 +46,7 @@ public class TopicListenerService implements nEventListener {
         nChannel myChannel = this.session.findChannel(cattrib);
         this.LOG.info("Found Channel " + topicName);
         //nNamedObject durableSubscriber = myChannel.createNamedObject("durableSubscriber", 0, true);
-        nNamedObject durableSubscriber = myChannel.createSharedNamedObject("durableSubscriber", true, false, 0);
+        nNamedObject durableSubscriber = myChannel.createSharedNamedObject(durableSubscriberName, true, false, 0);
         this.iterator = myChannel.createIterator(0L);
         this.LOG.info("Created durableSubscriber");
     }

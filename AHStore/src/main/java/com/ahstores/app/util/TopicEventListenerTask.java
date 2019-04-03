@@ -18,6 +18,8 @@ public class TopicEventListenerTask implements Runnable {
     private  String topicname;
     @Value(value="${ahstore.app.queuename}")
     private  String queuename;
+    @Value(value="${ahstore.app.durable.name}")
+    private String durableSubscriberName;
     @Autowired
     private  TopicListenerService topicListenerService;
     
@@ -25,7 +27,7 @@ public class TopicEventListenerTask implements Runnable {
 	public void run() {
 		LOG.info("Scheduled Listener has just started up>>>");
 	    try {
-	    	topicListenerService.mySyncTopicReader(umURL, topicname);
+	    	topicListenerService.mySyncTopicReader(umURL, topicname, durableSubscriberName);
 	    	topicListenerService.start();
 			LOG.info("Scheduled Listener has kicked up TopicListeners>>>");
 		} catch (Exception e) {
