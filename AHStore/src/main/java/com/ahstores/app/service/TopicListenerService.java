@@ -16,6 +16,8 @@ import com.pcbsys.nirvana.client.nChannelIterator;
 import com.pcbsys.nirvana.client.nChannelNotFoundException;
 import com.pcbsys.nirvana.client.nConsumeEvent;
 import com.pcbsys.nirvana.client.nConsumeEventFragmentReader;
+import com.pcbsys.nirvana.client.nDurable;
+import com.pcbsys.nirvana.client.nDurableAttributes;
 import com.pcbsys.nirvana.client.nEventListener;
 import com.pcbsys.nirvana.client.nNamedObject;
 import com.pcbsys.nirvana.client.nRealmNotFoundException;
@@ -27,6 +29,7 @@ import com.pcbsys.nirvana.client.nSessionFactory;
 import com.pcbsys.nirvana.client.nSessionNotConnectedException;
 import com.pcbsys.nirvana.client.nSessionPausedException;
 import com.pcbsys.nirvana.client.nUnexpectedResponseException;
+import java.util.logging.Level;
 
 @Service
 public class TopicListenerService implements nEventListener {
@@ -35,25 +38,57 @@ public class TopicListenerService implements nEventListener {
 	@Autowired
 	private MessageShipmentTargetService messageShipmentTargetService;
 	nChannelIterator iterator = null;
-    nSession session = null;
-    boolean isRunning=false;
+        nSession session = null;
+        boolean isRunning=false;
+        nDurable shared = null;
     
-	public void mySyncTopicReader(String umURL, String topicName, String durableSubscriberName) throws Exception {
-        this.session = this.connect(umURL);
-        this.LOG.info("Created session");
-        nChannelAttributes cattrib = new nChannelAttributes();
-        cattrib.setName(topicName);
-        nChannel myChannel = this.session.findChannel(cattrib);
-        this.LOG.info("Found Channel " + topicName);
-        //nNamedObject durableSubscriber = myChannel.createNamedObject("durableSubscriber", 0, true);
-        nNamedObject durableSubscriber = myChannel.createSharedNamedObject(durableSubscriberName, true, false, 0);
-        this.iterator = myChannel.createIterator(0L);
-        this.LOG.info("Created durableSubscriber");
+    public void mySyncTopicReader(String umURL, String topicName, String durableSubscriberName) {
+        
+        nChannel myChannel=null;
+        nNamedObject durableSubscriber=null;
+        boolean isDurableSubscriberCreated=false;
+        try {
+            this.session = this.connect(umURL);
+            this.LOG.info("Created session");
+            nChannelAttributes cattrib = new nChannelAttributes();
+            cattrib.setName(topicName);
+            myChannel = this.session.findChannel(cattrib);
+            this.LOG.info("Found Channel " + topicName +"myChannel.getNamedObjects().length ::"+myChannel.getNamedObjects().length );
+           
+                if(myChannel.getNamedObjects().length > 0){
+                      durableSubscriber=myChannel.getSharedNamedObject(durableSubscriberName);
+                      this.iterator = myChannel.createIterator(0L);
+                       this.LOG.info("Fetch durableSubscriber::"+durableSubscriber.getName());
+                }else {
+//                     durableSubscriber = myChannel.createSharedNamedObject(durableSubscriberName, true, false, 0);
+//                     this.iterator = myChannel.createIterator(0L);
+//          ***** Do not enable above code in for 10.3 UM.
+                        //Create Shared Durable in 10.3 UM
+                   
+                    nDurableAttributes.nDurableType type = nDurableAttributes.nDurableType.Shared;
+                    nDurableAttributes attr = nDurableAttributes.create(type, durableSubscriberName);
+                     attr.setPersistent(true);
+                     attr.setClustered(false);
+                     attr.setStartEID(0);
+                     shared = myChannel.getDurableManager().add(attr);
+                     this.iterator = myChannel.createIterator(0L);
+                    
+                    this.LOG.info("Created durableSubscriber::"+shared.getName());
+                
+                 }
+                
+                
+             
+            } catch(Exception e){
+               LOG.error(e.getMessage()); 
+            }
+        
+        
     }
 
     public void start() throws nSecurityException, nChannelNotFoundException, nSessionNotConnectedException, nSessionPausedException, nRealmNotFoundException, nUnexpectedResponseException, nSelectorParserException {
         while (!isRunning) {
-        	isRunning=true;
+            isRunning=true;
             nConsumeEvent event = this.iterator.getNext();
             this.go(event);
             isRunning=false;
@@ -66,7 +101,6 @@ public class TopicListenerService implements nEventListener {
 	 	String message= new String(event.getEventData());
 	 	LOG.info("Message consumed>>>>"+message);
 	 	MessageShipment_S messageShipment=Utility.getObjectFromJson(message, MessageShipment_S.class);
-	 	LOG.info("MessageShipment_S"+messageShipment.getShipmentId());
 	 	MessageShipment_T targetMessage=new MessageShipment_T();
 	 	targetMessage.setGlnBuyer(messageShipment.getGlnBuyer());
 	 	targetMessage.setGlnConsignee(messageShipment.getGlnConsignee());
