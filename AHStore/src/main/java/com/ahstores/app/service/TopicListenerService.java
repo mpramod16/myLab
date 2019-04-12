@@ -106,7 +106,7 @@ public class TopicListenerService implements nEventListener {
                 event = this.iterator.getNext();
                 this.go(event);
                 iterator.ack(event.getEventID());
-                LOG.info("Sent Acknowledgement >>>>");
+                LOG.info("Sent Acknowledgement for"+event.getEventID());
                 isRunning=false;
                
         }
@@ -115,9 +115,9 @@ public class TopicListenerService implements nEventListener {
     @Override
 	public void go(nConsumeEvent event) {
             try {
-                System.out.println("Consumed event>>>> "+event.getEventTag());
+                System.out.println("Consumed event>>>> "+event.getEventID());
 	 	String message= new String(event.getEventData());
-	 	LOG.info("Message consumed>>>>"+message);
+	 	//LOG.info("Message consumed>>>>"+message);
 	 	MessageShipment_S messageShipment=Utility.getObjectFromJson(message, MessageShipment_S.class);
 	 	MessageShipment_T targetMessage=new MessageShipment_T();
 	 	targetMessage.setGlnBuyer(messageShipment.getGlnBuyer());
@@ -139,6 +139,7 @@ public class TopicListenerService implements nEventListener {
                 
             } catch (Exception e) {
                 LOG.error(e.getMessage());
+                System.exit(1);
             }
                 
                 

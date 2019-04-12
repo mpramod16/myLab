@@ -24,7 +24,7 @@ public class ScheduledConfiguration implements SchedulingConfigurer {
 	private TaskScheduler taskScheduler; 
 	
 	@Autowired
-    private SchedulerConfigService schedulerConfigService;
+        private SchedulerConfigService schedulerConfigService;
 	@Autowired 
 	private Task task;
 	@Autowired 

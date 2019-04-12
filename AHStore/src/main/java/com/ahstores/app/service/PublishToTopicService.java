@@ -26,12 +26,12 @@ public String sendMessage(String umURL,String topicname,String message) throws E
 		
 		LOG.info("SendMessage in PublishToTopic>>");
 		nSession session = this.connect(umURL);
-		LOG.info("obtained session for UM");
+		//LOG.info("obtained session for UM");
 		nChannel myChannel = this.getChannel(session, topicname);
-		LOG.info("Got the channel>>>");
+		//LOG.info("Got the channel>>>");
 		UUID uuid = UUID.randomUUID();
 		this.publish(message,uuid.toString(), myChannel);
-		LOG.info("published message >>> "+message);
+		LOG.info("published message >>> EventId: "+myChannel.getLastEID());
 		this.disconnect(session);
 		return "Published Message Successfully";
 
@@ -41,7 +41,7 @@ public String sendMessage(String umURL,String topicname,String message) throws E
 		nChannelAttributes cattrib = new nChannelAttributes();
 		cattrib.setName(channelName);
 		nChannel channel = session.findChannel(cattrib);
-		System.out.println("Topic Retrieved: " + channel.getName());
+                System.out.println("Topic Retrieved: " + channel.getName());
 		return channel;
 	}
 
@@ -52,11 +52,8 @@ public String sendMessage(String umURL,String topicname,String message) throws E
 		nEventAttributes evtAttrs = new nEventAttributes();
 		evtAttrs.setMessageType((byte) 5);
 		evt.setAttributes(evtAttrs);
-
-		myTransaction.publish(evt);
+                myTransaction.publish(evt);
 		myTransaction.commit();
-
-		System.out.println("Published Message with tag: " + tag);
 	}
 	
 	public nSession connect(String rnames) throws Exception {
