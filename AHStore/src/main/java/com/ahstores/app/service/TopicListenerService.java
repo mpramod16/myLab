@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.ahstores.app.model.MessageShipment_S;
 import com.ahstores.app.model.MessageShipment_T;
+import com.ahstores.app.util.UMReconnectHandler;
 import com.ahstores.app.util.Utility;
 import com.pcbsys.nirvana.client.nChannel;
 import com.pcbsys.nirvana.client.nChannelAttributes;
@@ -148,6 +149,7 @@ public class TopicListenerService implements nEventListener {
     
     public nSession connect(String rnames) throws Exception {
         nSessionAttributes sessionAttributes = new nSessionAttributes(rnames);
+        UMReconnectHandler rhandler=new UMReconnectHandler(); 
         nSession connectionObject = nSessionFactory.create((nSessionAttributes)sessionAttributes);
         connectionObject.init();
         return connectionObject;
